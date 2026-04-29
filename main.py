@@ -1,7 +1,18 @@
-from db import get_connection
+import secrets
+import string
 
-with get_connection() as conn:
-    with conn.cursor() as cur:
-        cur.execute("SELECT version();")
-        version = cur.fetchone()
-        print(f"You are connected to: {version[0]}")
+from db import get_source, insert_resource
+
+def save_resource(source):
+    alias = generate_base62_7()
+
+    result = insert_resource(alias, source)
+    return result[1]
+
+def show_source(alias):
+    result = get_source(alias)
+    return result[0]
+
+def generate_base62_7():
+    alphabet = string.digits + string.ascii_letters
+    return ''.join(secrets.choice(alphabet) for _ in range(7))
