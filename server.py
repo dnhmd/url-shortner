@@ -53,13 +53,14 @@ def handle_request(request_bytes):
             data = json.loads(body_bytes.decode("utf-8"))
             alias = save_resource(data['url'])
             
-            return http_response(200, f"URL Shortened. You can redirect using http://localhost:8080/{alias}.".encode(), None, "application/json")
+            return http_response(200, f"URL shortened. You can redirect using http://localhost:8080/{alias}.".encode(), None, "application/json")
         
         if method == "GET" and len(path) > 1:
             alias = path[1:]
             source = show_source(alias)
 
-            return http_response(302, b"URL Found.", source)
+            if source is not None:
+                return http_response(302, "Page found", source)
         
         return http_response(404, b"Page not found")
     

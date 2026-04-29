@@ -11,6 +11,8 @@ def save_resource(source):
 
 def show_source(alias):
     result = get_source(alias)
+    if result == None:
+        return result
     return result[0]
 
 def generate_base62_7():
