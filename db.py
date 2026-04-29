@@ -6,11 +6,11 @@ import psycopg2
 
 load_dotenv()
 
-HOST = os.getenv("HOST")
-DATABASE = os.getenv("DATABASE")
-USER = os.getenv("USER")
-PASSWORD = os.getenv("PASSWORD")
-PORT = os.getenv("PORT")
+HOST = os.getenv("DB_HOST")
+DATABASE = os.getenv("DB_NAME")
+USER = os.getenv("DB_USER")
+PASSWORD = os.getenv("DB_PASSWORD")
+PORT = os.getenv("DB_PORT")
 
 @contextmanager
 def get_connection():
@@ -30,3 +30,20 @@ def get_connection():
     finally:
         if conn:
             conn.close()
+
+def insert_resource(alias, source):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("insert into aliases(alias, source) values (%s, %s) returning id, alias, created_at;", (alias, source))
+            result = cur.fetchone()
+        conn.commit()
+
+    return result
+
+def get_source(alias):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("select source from aliases where alias = %s;", (alias,))
+            result = cur.fetchone()
+    
+    return result
