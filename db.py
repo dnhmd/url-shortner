@@ -47,3 +47,12 @@ def get_source(alias):
             result = cur.fetchone()
     
     return result
+
+def insert_clicked(alias_id):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("insert into clicks(alias_id) values (%s) returning id, alias_id, clicked_at;", (alias_id,))
+            result = cur.fetchone()
+        conn.commit()
+    
+    return result
