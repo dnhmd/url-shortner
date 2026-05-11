@@ -2,7 +2,7 @@ import json
 import socket
 from urllib.parse import urlparse
 
-from main import save_resource, show_source
+from main import save_click, save_resource, show_source
 
 HOST = '127.0.0.1'
 PORT = 8080
@@ -57,10 +57,11 @@ def handle_request(request_bytes):
         
         if method == "GET" and len(path) > 1:
             alias = path[1:]
-            source = show_source(alias)
+            id, source = show_source(alias)
 
             if source is not None:
-                return http_response(302, "Page found", source)
+                save_click(id)
+                return http_response(302, b"Page found", source)
         
         return http_response(404, b"Page not found")
     
