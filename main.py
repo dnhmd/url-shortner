@@ -1,7 +1,7 @@
 import secrets
 import string
 
-from db import get_source, insert_click, insert_resource
+from db import get_clicks, get_source, insert_click, insert_resource
 
 def generate_base62_7():
     alphabet = string.digits + string.ascii_letters
@@ -22,3 +22,9 @@ def show_source(alias):
 def save_click(alias_id):
     result = insert_click(alias_id)
     return result[1]
+
+def show_clicks(alias_id):
+    result = get_clicks(alias_id)
+    if result == None:
+        return result
+    return len(result), [(row[0], row[1].strftime("%Y-%m-%d %H:%M:%S UTC")) for row in result]

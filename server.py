@@ -2,7 +2,7 @@ import json
 import socket
 from urllib.parse import urlparse
 
-from main import save_click, save_resource, show_source
+from main import save_click, save_resource, show_clicks, show_source
 
 HOST = '127.0.0.1'
 PORT = 8080
@@ -46,27 +46,37 @@ def handle_request(request_bytes):
         parsed = urlparse(target)
         path = parsed.path
 
-        if method == "POST" and path == "/shorten":
+        parts = path.split("/") 
+
+        if method == "POST" and parts[1] == "shorten":
             if not body_bytes:
                 return http_response(400, b"Empty Body")
             
             data = json.loads(body_bytes.decode("utf-8"))
             alias = save_resource(data['url'])
             
-            return http_response(200, f"URL shortened. You can redirect using http://localhost:8080/{alias}.".encode(), None, "application/json")
+            return http_response(200, f"URL shortened. You can redirect using http://localhost:8080/{alias}.\r\n".encode(), None, "application/json")
         
-        if method == "GET" and len(path) > 1:
-            alias = path[1:]
+        if method == "GET" and parts[1] != "analytics" and len(parts[1]) > 1:
+            alias = parts[1]
             id, source = show_source(alias)
 
             if source is not None:
                 save_click(id)
-                return http_response(302, b"Page found", source)
+                return http_response(302, b"Page found\r\n", source)
         
-        return http_response(404, b"Page not found")
+        if method == "GET" and parts[1] == "analytics":
+            alias = parts[2]
+            id, source = show_source(alias)
+            clicks_count, clicks = show_clicks(id)
+
+            if clicks is not None:
+                return http_response(200, f"Number of redirections: {clicks_count}.\r\n{clicks}\r\n".encode(), None, "application/json")
+        
+        return http_response(404, b"Page not found\r\n")
     
     except Exception:
-        return http_response(400, b"Bad Request")
+        return http_response(400, b"Bad Request\r\n")
 
 def serve():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:

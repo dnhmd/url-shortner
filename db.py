@@ -56,3 +56,11 @@ def insert_click(alias_id):
         conn.commit()
     
     return result
+
+def get_clicks(alias_id):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("select id, clicked_at from clicks where alias_id = %s;", (alias_id,))
+            result = cur.fetchall()
+    
+    return result
