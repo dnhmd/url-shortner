@@ -71,7 +71,11 @@ def handle_request(request_bytes):
             clicks_count, clicks = show_clicks(id)
 
             if clicks is not None:
-                return http_response(200, f"Number of redirections: {clicks_count}.\r\n{clicks}\r\n".encode(), None, "application/json")
+                lines = [f"Number of redirections: {clicks_count}"]
+                for i, (id, timestamp) in enumerate(clicks, 1):
+                    lines.append(f"{i}. {timestamp}")
+                body = "\n".join(lines).encode()
+                return http_response(200, body, None, "application/json")
         
         return http_response(404, b"Page not found\r\n")
     
